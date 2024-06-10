@@ -29,10 +29,10 @@ app.post("/send", async (request, response) => {
     id: queryId,
     title: "Success",
     input_message_content: {
-      message_text: "Ура"
+      message_text: `/echo ${text}`
     }
   })
-  return response.status(200)
+  return response.status(200).json({})
 })
 
 app.listen(PORT, () => { 
@@ -45,26 +45,6 @@ app.listen(PORT, () => {
 // Create a bot that uses 'polling' to fetch new updates
 const bot: TelegramBot = new TelegramBot(token, { polling: true });
 
-const inlineKeyboard = {
-  keyboard: [
-      [
-          {
-              text: 'Open Web App',
-              web_app: {
-                  url: url
-              }
-          }
-      ],
-      [
-        {
-          text: 'Open Web App',
-          web_app: {
-              url: url
-          }
-      }
-      ]
-  ]
-};
 
 // Matches "/echo [whatever]"
 bot.onText(/\/echo (.+)/, (msg: TelegramBot.Message, match: RegExpExecArray | null) => {
@@ -78,7 +58,8 @@ bot.onText(/\/echo (.+)/, (msg: TelegramBot.Message, match: RegExpExecArray | nu
   const resp: string = match[1]; // the captured "whatever"
 
   // send back the matched "whatever" to the chat
-  bot.sendMessage(chatId, resp);
+  let t = resp.length;
+  bot.sendMessage(chatId, `${resp}. В слове ${t} букв`);
 });
 
 // Listen for any kind of message. There are different kinds of messages.
@@ -88,7 +69,7 @@ bot.on('message', (msg: TelegramBot.Message) => {
   // send a message to the chat acknowledging receipt of their message
   if (msg.text == "/start") {
       bot.sendMessage(chatId, "Click the button below to open the web app:", {
-          reply_markup: inlineKeyboard
+          
       });
   } else if (msg.web_app_data?.data != null){
     let text = `Searching for ${msg.web_app_data?.data!}`
